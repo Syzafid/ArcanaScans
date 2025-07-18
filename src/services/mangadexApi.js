@@ -3,9 +3,8 @@ import axios from 'axios';
 
 const isLocal = typeof window !== 'undefined' && window.location.hostname === 'localhost';
 
-const BASE_URL = isLocal
-  ? 'https://api.mangadex.org'
-  : '/api/mangadex';            
+const BASE_URL = 'https://api.mangadex.org';
+          
 
 
 const mangaApi = axios.create({
