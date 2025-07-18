@@ -1,41 +1,56 @@
 import axios from 'axios';
 
-const isLocal = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+const API_URL = 'https://api.mangadex.org';
 
-// Gunakan API asli langsung di Next.js (tidak pakai proxy seperti '/api/mangadex')
-const BASE_URL = 'https://api.mangadex.org';
+console.log('[mangadex] Using API URL:', API_URL);
 
+// Axios instance
 const mangaApi = axios.create({
-  baseURL: BASE_URL,
-  timeout: 30000, // 30 detik timeout
+  baseURL: API_URL,
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Request interceptor (untuk debugging)
+// Request interceptor (debugging)
 mangaApi.interceptors.request.use(
   (config) => {
-    console.log('API Request:', config.url, config.params);
+    console.log('[mangadex] API Request:', {
+      url: `${config.baseURL}${config.url}`,
+      params: config.params || {},
+      method: config.method,
+    });
     return config;
   },
   (error) => {
-    console.error('Request Error:', error);
+    console.error('[mangadex] Request Error:', error);
     return Promise.reject(error);
   }
 );
 
-// Response interceptor (untuk error handling)
+// Response interceptor (debugging)
 mangaApi.interceptors.response.use(
   (response) => {
-    console.log('API Response:', response.config.url, response.status);
+    console.log('[mangadex] API Response:', {
+      url: response.config.url,
+      status: response.status,
+    });
     return response;
   },
   (error) => {
-    console.error('API Error:', error.config?.url, error.response?.status, error.message);
-    if (error.code === 'ECONNABORTED') throw new Error('Request timeout - server is taking too long to respond');
-    if (error.response?.status >= 500) throw new Error('Server error - please try again later');
-    if (error.response?.status === 429) throw new Error('Too many requests - please wait a moment');
+    console.error('[mangadex] API Error:', {
+      url: error.config?.url,
+      status: error.response?.status,
+      message: error.message,
+    });
+
+    if (error.code === 'ECONNABORTED')
+      throw new Error('Request timeout - server is taking too long to respond');
+    if (error.response?.status >= 500)
+      throw new Error('Server error - please try again later');
+    if (error.response?.status === 429)
+      throw new Error('Too many requests - please wait a moment');
     throw error;
   }
 );
@@ -64,13 +79,14 @@ export const getMangaList = async (
 
     if (title && title.trim()) params.title = title.trim();
     if (includedTags.length > 0) params['includedTags[]'] = includedTags;
-    if (originalLanguages.length > 0) params['originalLanguage[]'] = originalLanguages;
+    if (originalLanguages.length > 0)
+      params['originalLanguage[]'] = originalLanguages;
 
-    console.log('Fetching manga with params:', params);
+    console.log('[mangadex] Fetching manga list with params:', params);
 
     const response = await mangaApi.get('/manga', { params });
     if (!response.data || !response.data.data) {
-      console.error('Invalid response structure:', response.data);
+      console.error('[mangadex] Invalid response structure:', response.data);
       throw new Error('Invalid response from server');
     }
 
@@ -81,7 +97,7 @@ export const getMangaList = async (
       offset: response.data.offset || offset,
     };
   } catch (error) {
-    console.error('Error fetching manga list:', error);
+    console.error('[mangadex] Error fetching manga list:', error);
     throw new Error(error.message || 'Failed to fetch manga list');
   }
 };
@@ -95,16 +111,22 @@ export const getMangaById = async (id) => {
       params: { 'includes[]': ['cover_art', 'author', 'artist'] },
     });
 
-    if (!response.data || !response.data.data) throw new Error('Manga not found');
+    if (!response.data || !response.data.data)
+      throw new Error('Manga not found');
     return response.data;
   } catch (error) {
-    console.error('Error fetching manga details:', error);
+    console.error('[mangadex] Error fetching manga details:', error);
     throw new Error(error.message || 'Failed to fetch manga details');
   }
 };
 
 // 3. Ambil semua chapter dari manga
-export const getMangaChapters = async (mangaId, limit = 100, offset = 0, translatedLanguage = []) => {
+export const getMangaChapters = async (
+  mangaId,
+  limit = 100,
+  offset = 0,
+  translatedLanguage = []
+) => {
   try {
     if (!mangaId) throw new Error('Manga ID is required');
 
@@ -115,7 +137,10 @@ export const getMangaChapters = async (mangaId, limit = 100, offset = 0, transla
       'order[chapter]': 'desc',
       'includes[]': ['scanlation_group', 'user'],
     };
-    if (translatedLanguage.length > 0) params['translatedLanguage[]'] = translatedLanguage;
+    if (translatedLanguage.length > 0)
+      params['translatedLanguage[]'] = translatedLanguage;
+
+    console.log('[mangadex] Fetching chapters:', { mangaId, params });
 
     const response = await mangaApi.get('/chapter', { params });
     if (!response.data) throw new Error('Invalid response from server');
@@ -127,7 +152,7 @@ export const getMangaChapters = async (mangaId, limit = 100, offset = 0, transla
       offset: response.data.offset || offset,
     };
   } catch (error) {
-    console.error('Error fetching manga chapters:', error);
+    console.error('[mangadex] Error fetching manga chapters:', error);
     throw new Error(error.message || 'Failed to fetch chapters');
   }
 };
@@ -136,12 +161,15 @@ export const getMangaChapters = async (mangaId, limit = 100, offset = 0, transla
 export const getChapterPages = async (chapterId) => {
   try {
     if (!chapterId) throw new Error('Chapter ID is required');
+    console.log('[mangadex] Fetching chapter pages:', chapterId);
+
     const response = await mangaApi.get(`/at-home/server/${chapterId}`);
 
-    if (!response.data || !response.data.chapter) throw new Error('Chapter pages not found');
+    if (!response.data || !response.data.chapter)
+      throw new Error('Chapter pages not found');
     return response.data;
   } catch (error) {
-    console.error('Error fetching chapter pages:', error);
+    console.error('[mangadex] Error fetching chapter pages:', error);
     throw new Error(error.message || 'Failed to fetch chapter pages');
   }
 };
@@ -150,12 +178,15 @@ export const getChapterPages = async (chapterId) => {
 export const getChapterById = async (chapterId) => {
   try {
     if (!chapterId) throw new Error('Chapter ID is required');
+    console.log('[mangadex] Fetching chapter by ID:', chapterId);
+
     const response = await mangaApi.get(`/chapter/${chapterId}`);
 
-    if (!response.data || !response.data.data) throw new Error('Chapter not found');
+    if (!response.data || !response.data.data)
+      throw new Error('Chapter not found');
     return response.data;
   } catch (error) {
-    console.error('Error fetching chapter by ID:', error);
+    console.error('[mangadex] Error fetching chapter by ID:', error);
     throw new Error(error.message || 'Failed to fetch chapter by ID');
   }
 };
@@ -163,25 +194,31 @@ export const getChapterById = async (chapterId) => {
 // 6. Ambil daftar genre/tag manga
 export const getMangaGenres = async () => {
   try {
-    const response = await mangaApi.get('manga/tag');
+    console.log('[mangadex] Fetching manga genres...');
+    const response = await mangaApi.get('/manga/tag');
     if (!response.data || !response.data.data) {
-      console.error('Invalid genres response:', response.data);
+      console.error('[mangadex] Invalid genres response:', response.data);
       return { data: [] };
     }
     return { data: response.data.data || [] };
   } catch (error) {
-    console.error('Error fetching genres:', error);
-    return { data: [] }; // tidak melempar error agar app tidak crash
+    console.error('[mangadex] Error fetching genres:', error);
+    return { data: [] };
   }
 };
 
 // 7. Helper untuk cover dan page
 export const getCoverUrl = (mangaId, coverFileName, size = '256') => {
-  if (!mangaId || !coverFileName) return '/placeholder.svg';
-  return `https://uploads.mangadex.org/covers/${mangaId}/${coverFileName}.${size}.jpg`;
+  const url = mangaId && coverFileName
+    ? `https://uploads.mangadex.org/covers/${mangaId}/${coverFileName}.${size}.jpg`
+    : '/placeholder.svg';
+  console.log('[mangadex] Cover URL:', url);
+  return url;
 };
 
 export const getPageUrl = (baseUrl, hash, fileName, quality = 'data') => {
-  if (!baseUrl || !hash || !fileName) return '/placeholder.svg';
-  return `${baseUrl}/${quality}/${hash}/${fileName}`;
+  const url = baseUrl && hash && fileName
+    ? `${baseUrl}/${quality}/${hash}/${fileName}`
+    : '/placeholder.svg';
+  return url;
 };

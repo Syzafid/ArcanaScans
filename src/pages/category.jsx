@@ -78,7 +78,6 @@ const Category = () => {
 
   return (
     <div className="min-h-screen bg-dark-bg">
-      <Navigation />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <AnimatedContainer>
           <h1 className="text-3xl font-bold text-dark-text-primary mb-6 gradient-text">Browse by Category</h1>
