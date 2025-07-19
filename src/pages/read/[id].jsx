@@ -347,7 +347,7 @@ const ChapterReader = () => {
                 e.target.src = '/placeholder.svg';
                 handleImageLoad(index);
               }}
-              unoptimized
+              // unoptimized
             />
 
               <div className="absolute top-4 left-4 bg-black/70 text-white px-2 py-1 rounded text-sm">

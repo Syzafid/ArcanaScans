@@ -7,6 +7,7 @@ import { Trophy, Bookmark, BookmarkCheck, BookOpen, Info } from "lucide-react";
 import { getCoverUrl } from "../lib/mangadex";
 import { useAuth } from "../contexts/AuthContext";
 import useBookmark from "../hooks/useBookmark";
+import Image from "next/image";
 
 const RankingSidebar = () => {
   const [rankings, setRankings] = useState([]);
@@ -167,19 +168,22 @@ const RankingSidebar = () => {
                 </div>
 
                 <Link href={`/manga/${item.mangaId || item.id}`} className="flex items-center space-x-3 flex-1">
-                  <img
-                    src={
-                      item.cover ||
-                      (item.mangaId && item.coverFileName
-                        ? getCoverUrl(item.mangaId, item.coverFileName, "256")
-                        : "/placeholder.svg")
-                    }
-                    alt={item.title}
-                    className="w-12 h-16 object-cover rounded border border-dark-border"
-                    onError={(e) => {
-                      e.target.src = "/placeholder.svg";
-                    }}
-                  />
+                <Image
+                  src={
+                    item.cover ||
+                    (item.mangaId && item.coverFileName
+                      ? getCoverUrl(item.mangaId, item.coverFileName, "256")
+                      : "/placeholder.svg")
+                  }
+                  alt={item.title}
+                  width={48}
+                  height={64}
+                  className="object-cover rounded border border-dark-border"
+                  onError={(e) => {
+                    e.currentTarget.src = "/placeholder.svg";
+                  }}
+                  unoptimized // Jika belum yakin domain sudah terdaftar di next.config.js
+                />
 
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-medium text-dark-text-primary truncate group-hover:text-primary transition-colors">
