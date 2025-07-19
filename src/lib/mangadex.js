@@ -206,16 +206,14 @@ export const getMangaGenres = async () => {
 };
 
 // 7. Helper untuk cover dan page
-export const getCoverUrl = (mangaId, coverFileName, size = '256') => {
+export const getCoverUrl = (mangaId, coverFileName) => {
   if (!mangaId || !coverFileName) return '/placeholder.svg';
 
-  // Tambahkan versi dengan resolusi jika diperlukan
-  const baseUrl = `https://uploads.mangadex.org/covers/${mangaId}/${coverFileName}`;
-  const url = size ? `${baseUrl}?width=${size}` : baseUrl;
-
+  const url = `https://uploads.mangadex.org/covers/${mangaId}/${coverFileName}`;
   console.log('[mangadex] Cover URL:', url);
   return url;
 };
+
 
 
 export const getPageUrl = (baseUrl, hash, fileName, quality = 'data') => {

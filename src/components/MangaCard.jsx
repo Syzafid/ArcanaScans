@@ -13,9 +13,7 @@ const MangaCard = ({ manga }) => {
 
   const coverArt = manga.relationships?.find((rel) => rel.type === "cover_art");
   const coverFileName = coverArt?.attributes?.fileName;
-  const coverUrl = coverFileName
-    ? getCoverUrl(manga.id, coverFileName)
-    : "/placeholder.svg";
+  const coverUrl = getCoverUrl(manga.id, coverFileName, 256);
 
   const title =
     manga.attributes?.title?.en ||
@@ -31,9 +29,7 @@ const MangaCard = ({ manga }) => {
     "No description available";
 
   const truncatedDescription =
-    description.length > 150
-      ? description.substring(0, 150) + "..."
-      : description;
+    description.length > 150 ? `${description.substring(0, 150)}...` : description;
 
   const getCategoryLabel = (originalLanguage) => {
     switch (originalLanguage) {
@@ -86,13 +82,15 @@ const MangaCard = ({ manga }) => {
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.3 }}
             onError={(e) => {
-              console.warn(`❌ Failed to load cover for ${title}`);
-              e.target.src = "/placeholder.svg";
+              if (!e.target.dataset.fallback) {
+                console.warn(`❌ Failed to load cover for ${title}`);
+                e.target.src = "/placeholder.svg";
+                e.target.dataset.fallback = "true";
+              }
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-          {/* Category Label */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -102,7 +100,6 @@ const MangaCard = ({ manga }) => {
             {categoryLabel.label}
           </motion.div>
 
-          {/* Add to Library Button */}
           {user && user.role === "user" && (
             <motion.button
               initial={{ opacity: 0, scale: 0.8 }}
@@ -134,15 +131,17 @@ const MangaCard = ({ manga }) => {
             {truncatedDescription}
           </p>
           <div className="flex flex-wrap gap-1">
-            {manga.attributes?.tags?.slice(0, 3).map((tag) => (
-              <motion.span
-                key={tag.id}
-                whileHover={{ scale: 1.05 }}
-                className="px-2 py-1 bg-primary/20 text-primary text-xs rounded-full border border-primary/30 hover:bg-primary/30 transition-colors duration-200"
-              >
-                {tag.attributes.name.en}
-              </motion.span>
-            )) || []}
+            {(manga.attributes?.tags || [])
+              .slice(0, 3)
+              .map((tag) => (
+                <motion.span
+                  key={tag.id}
+                  whileHover={{ scale: 1.05 }}
+                  className="px-2 py-1 bg-primary/20 text-primary text-xs rounded-full border border-primary/30 hover:bg-primary/30 transition-colors duration-200"
+                >
+                  {tag.attributes?.name?.en || "Unknown"}
+                </motion.span>
+              ))}
           </div>
         </div>
       </motion.div>
