@@ -1,4 +1,6 @@
 import '@/styles/index.css';
+import '@/styles/_app.css';
+import '@/styles/globals.css';
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";

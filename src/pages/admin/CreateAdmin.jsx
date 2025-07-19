@@ -6,7 +6,7 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import Link from 'next/link';
 import { useSelector } from 'react-redux'; // ⬅️ Ambil state dari Redux
-import { createAdminAccount } from '../../services/adminApi'; // ⬅️ Asumsikan ada API untuk create admin
+import { createAdminAccount } from '@/lib/mangadex'; // ⬅️ Asumsikan ada API untuk create admin
 
 const CreateAdmin = () => {
   const [formData, setFormData] = useState({
