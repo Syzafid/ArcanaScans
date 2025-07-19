@@ -6,6 +6,8 @@ import { ArrowLeft, Book, Calendar, Star, Globe, ChevronDown } from 'lucide-reac
 import { getMangaById, getCoverUrl, getMangaChapters } from '@/lib/mangadex';
 import AnimatedContainer from '@/components/animations/AnimatedContainer';
 import FadeInOnScroll from '@/components/animations/FadeInOnScroll';
+import Image from 'next/image';
+
 
 const MangaDetail = () => {
   const router = useRouter();
@@ -184,14 +186,17 @@ const MangaDetail = () => {
                 transition={{ duration: 0.5 }}
                 className="relative group"
               >
-                <img
-                  src={coverUrl}
-                  alt={title}
-                  className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
-                  onError={(e) => {
-                    e.target.src = '/placeholder.svg';
-                  }}
-                />
+            <Image
+              src={coverUrl}
+              alt={title}
+              width={512}
+              height={768}
+              className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
+              onError={(e) => {
+                e.target.src = '/placeholder.svg';
+              }}
+            />
+
                 <div className="absolute inset-0 bg-gradient-to-t from-dark-bg/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </motion.div>
             </FadeInOnScroll>
