@@ -182,7 +182,7 @@ const RankingSidebar = () => {
                   onError={(e) => {
                     e.currentTarget.src = "/placeholder.svg";
                   }}
-                  unoptimized // Jika belum yakin domain sudah terdaftar di next.config.js
+                  // unoptimized // Jika belum yakin domain sudah terdaftar di next.config.js
                 />
 
                   <div className="flex-1 min-w-0">

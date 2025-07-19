@@ -89,7 +89,7 @@ const RecommendationManager = () => {
                 onError={(e) => {
                   e.currentTarget.src = '/placeholder.svg';
                 }}
-                unoptimized // Optional: hilangkan jika kamu yakin domain sudah di-allow di next.config.js
+                // unoptimized // Optional: hilangkan jika kamu yakin domain sudah di-allow di next.config.js
               />
                   <div className="flex-1 min-w-0">
                     <h4 className="font-medium text-dark-text-primary mb-2 truncate" title={recommendation.title}>

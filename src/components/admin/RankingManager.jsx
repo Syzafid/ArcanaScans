@@ -143,7 +143,7 @@ const RankingManager = () => {
                   onError={(e) => {
                     e.target.src = '/placeholder.svg';
                   }}
-                  unoptimized // Optional: jika kamu mau lewati optimisasi Next.js sementara debugging
+                  // unoptimized // Optional: jika kamu mau lewati optimisasi Next.js sementara debugging
                 />
                 
                 <div className="flex-1 min-w-0">
