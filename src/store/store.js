@@ -4,18 +4,20 @@ import storage from 'redux-persist/lib/storage';
 
 import bookmarkReducer from './slices/bookmarkSlice';
 import userReducer from './slices/userSlice';
-import rankingReducer from './slices/rankingSlice'; // Tambahan
+import rankingReducer from './slices/rankingSlice';
+import authReducer from './slices/authSlice'; // Tambahan
 
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['bookmarks', 'user'], 
+  whitelist: ['bookmarks', 'auth'], // simpan auth juga
 };
 
 const rootReducer = combineReducers({
   bookmarks: bookmarkReducer,
   user: userReducer,
-  rankings: rankingReducer, // Tambahan
+  rankings: rankingReducer,
+  auth: authReducer, // Tambahan
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -6,7 +6,6 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { removeBookmark, setBookmarkLoading, setBookmarkError, loadBookmarksForUser } from '../store/slices/bookmarkSlice';
 import MangaCard from '../components/MangaCard';
-import Navigation from '../components/Navigation';
 import AnimatedContainer from '../components/animations/AnimatedContainer';
 import FadeInOnScroll from '../components/animations/FadeInOnScroll';
 import { Trash2, BookOpen, User } from 'lucide-react';
@@ -17,7 +16,7 @@ const Library = () => {
   const { user, isAuthenticated } = useSelector((state) => state.user);
 
   useEffect(() => {
-    if (user && user.id) {
+    if (user?.id) {
       dispatch(setBookmarkLoading(true));
       dispatch(loadBookmarksForUser(user.id));
     }
@@ -32,7 +31,6 @@ const Library = () => {
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-dark-bg">
-        <Navigation />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <AnimatedContainer className="text-center py-16">
             <motion.div
@@ -45,20 +43,12 @@ const Library = () => {
               </div>
               <h1 className="text-3xl font-bold text-dark-text-primary mb-4">Access Restricted</h1>
               <p className="text-dark-text-secondary mb-6">Please log in to view your library</p>
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  // Mock login for demo
-                  dispatch({ 
-                    type: 'user/loginUser', 
-                    payload: { id: 'demo-user', username: 'Demo User', email: 'demo@example.com' } 
-                  });
-                }}
+              <Link
+                href="/auth/login"
                 className="btn-primary"
               >
-                Demo Login
-              </motion.button>
+                Go to Login
+              </Link>
             </motion.div>
           </AnimatedContainer>
         </div>
@@ -68,7 +58,6 @@ const Library = () => {
 
   return (
     <div className="min-h-screen bg-dark-bg">
-      <Navigation />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <AnimatedContainer>
           <div className="mb-8">

@@ -5,34 +5,39 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { motion } from "framer-motion";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
-import { useAuth } from "../contexts/AuthContext";
+import { useDispatch, useSelector } from 'react-redux';
+import { login, setAuthError } from '../store/slices/authSlice';
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const { login } = useAuth();
+  const dispatch = useDispatch();
   const router = useRouter();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+  const { error, loading } = useSelector((state) => state.auth);
 
-    const result = await login(formData.email, formData.password);
+  const handleSubmit = (e) => {
+  e.preventDefault();
+  setError("");
+  setLoading(true);
 
-    if (!result.success) {
-      setError(result.error);
-    } else {
-      router.push("/library");
-    }
+  // Simulasi login
+  if (formData.email === 'admin@example.com' && formData.password === '123456') {
+    dispatch(login({ id: 1, email: formData.email, role: 'admin', name: 'Admin User' }));
+    router.push('/admin');
+  } else if (formData.email === 'user@example.com' && formData.password === '123456') {
+    dispatch(login({ id: 2, email: formData.email, role: 'user', name: 'Regular User' }));
+    router.push('/library');
+  } else {
+    dispatch(setAuthError('Invalid email or password'));
+    setError('Invalid email or password');
+  }
 
-    setLoading(false);
-  };
+  setLoading(false);
+};
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

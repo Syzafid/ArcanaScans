@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { motion } from "framer-motion";
 import { Mail, Lock, User, Eye, EyeOff } from "lucide-react";
-import { useAuth } from "../contexts/AuthContext";
+import { useDispatch } from 'react-redux';
+import { signup } from '../store/slices/authSlice';
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 
@@ -16,15 +17,14 @@ const Signup = () => {
     password: "",
     confirmPassword: "",
   });
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const { signup } = useAuth();
+  const dispatch = useDispatch();
+  const { error, loading } = useSelector((state) => state.user);
   const router = useRouter();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
 
@@ -40,16 +40,18 @@ const Signup = () => {
 
     setLoading(true);
 
-    const result = await signup(formData.email, formData.password, formData.name);
+    const newUser = {
+      id: Date.now(),
+      email: formData.email,
+      role: 'user',
+      name: formData.name
+    };
 
-    if (!result.success) {
-      setError(result.error);
-    } else {
-      router.push("/library");
-    }
-
+    dispatch(signup(newUser));
+    router.push('/library');
     setLoading(false);
   };
+
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -68,9 +70,7 @@ const Signup = () => {
             <h1 className="text-3xl font-bold gradient-text mb-2">
               Create Account
             </h1>
-            <p className="text-dark-text-secondary">
-              Sign up for a new account
-            </p>
+            <p className="text-dark-text-secondary">Sign up for a new account</p>
           </div>
 
           {error && (

@@ -2,14 +2,18 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Home, BookOpen, Library, Settings, User, LogOut, Menu, X } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useSelector, useDispatch } from 'react-redux';
+import { logout } from '../store/slices/authSlice';
 import { useState } from 'react';
 
 const Navigation = () => {
   const router = useRouter();
   const currentPath = router.pathname; // Pengganti location.pathname
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { user, isAuthenticated, isAdmin, logout } = useAuth();
+  const { user, isAuthenticated, isAdmin } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const handleLogout = () => dispatch(logout());
+
 
   const navItems = [
     { path: '/', label: 'Home', icon: Home },
