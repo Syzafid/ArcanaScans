@@ -6,6 +6,8 @@ import { Bookmark, BookmarkCheck } from "lucide-react";
 import { getCoverUrl } from "../lib/mangadex";
 import { useAuth } from "../contexts/AuthContext";
 import useBookmark from "../hooks/useBookmark";
+import Image from "next/image";
+import { useState } from "react";
 
 const MangaCard = ({ manga }) => {
   const { user } = useAuth();
@@ -14,6 +16,8 @@ const MangaCard = ({ manga }) => {
   const coverArt = manga.relationships?.find((rel) => rel.type === "cover_art");
   const coverFileName = coverArt?.attributes?.fileName;
   const coverUrl = getCoverUrl(manga.id, coverFileName, 256);
+
+  const [imageError, setImageError] = useState(false);
 
   const title =
     manga.attributes?.title?.en ||
@@ -75,18 +79,15 @@ const MangaCard = ({ manga }) => {
         className="dark-card-hover overflow-hidden h-full relative"
       >
         <div className="aspect-[3/4] overflow-hidden relative">
-          <motion.img
-            src={coverUrl}
+          <Image
+            src={imageError ? "/placeholder.svg" : coverUrl}
             alt={title}
+            width={256}
+            height={342}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.3 }}
-            onError={(e) => {
-              if (!e.target.dataset.fallback) {
-                console.warn(`❌ Failed to load cover for ${title}`);
-                e.target.src = "/placeholder.svg";
-                e.target.dataset.fallback = "true";
-              }
+            onError={() => {
+              console.warn(`❌ Gagal memuat cover untuk ${title}`);
+              setImageError(true);
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
