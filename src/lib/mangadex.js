@@ -1,19 +1,18 @@
 import axios from 'axios';
 
-const API_URL = 'https://api.mangadex.org';
+const API_URL = '/api/mangadex-proxy';
 
 console.log('[mangadex] Using API URL:', API_URL);
 
-// Axios instance
+// === Axios Instance ===
 const mangaApi = axios.create({
   baseURL: API_URL,
-  timeout: 30000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  timeout: 60000,
+  headers: { 'Content-Type': 'application/json' },
 });
 
-// Request interceptor (debugging)
+// === Interceptors ===
+// Request interceptor
 mangaApi.interceptors.request.use(
   (config) => {
     console.log('[mangadex] API Request:', {
@@ -29,13 +28,10 @@ mangaApi.interceptors.request.use(
   }
 );
 
-// Response interceptor (debugging)
+// Response interceptor
 mangaApi.interceptors.response.use(
   (response) => {
-    console.log('[mangadex] API Response:', {
-      url: response.config.url,
-      status: response.status,
-    });
+    console.log('[mangadex] API Response OK:', response.config.url, response.status);
     return response;
   },
   (error) => {
@@ -43,15 +39,17 @@ mangaApi.interceptors.response.use(
       url: error.config?.url,
       status: error.response?.status,
       message: error.message,
+      data: error.response?.data,
     });
 
     if (error.code === 'ECONNABORTED')
-      throw new Error('Request timeout - server is taking too long to respond');
+      return Promise.reject(new Error('Request timeout - server is taking too long to respond'));
     if (error.response?.status >= 500)
-      throw new Error('Server error - please try again later');
+      return Promise.reject(new Error('Server error - please try again later'));
     if (error.response?.status === 429)
-      throw new Error('Too many requests - please wait a moment');
-    throw error;
+      return Promise.reject(new Error('Too many requests - please wait a moment'));
+
+    return Promise.reject(error);
   }
 );
 
@@ -85,8 +83,8 @@ export const getMangaList = async (
     console.log('[mangadex] Fetching manga list with params:', params);
 
     const response = await mangaApi.get('/manga', { params });
-    if (!response.data || !response.data.data) {
-      console.error('[mangadex] Invalid response structure:', response.data);
+    if (!response?.data || !response?.data?.data) {
+      console.error('[mangadex] Invalid response structure:', response?.data);
       throw new Error('Invalid response from server');
     }
 
@@ -111,7 +109,7 @@ export const getMangaById = async (id) => {
       params: { 'includes[]': ['cover_art', 'author', 'artist'] },
     });
 
-    if (!response.data || !response.data.data)
+    if (!response?.data || !response?.data?.data)
       throw new Error('Manga not found');
     return response.data;
   } catch (error) {
@@ -143,7 +141,7 @@ export const getMangaChapters = async (
     console.log('[mangadex] Fetching chapters:', { mangaId, params });
 
     const response = await mangaApi.get('/chapter', { params });
-    if (!response.data) throw new Error('Invalid response from server');
+    if (!response?.data) throw new Error('Invalid response from server');
 
     return {
       data: response.data.data || [],
@@ -165,7 +163,7 @@ export const getChapterPages = async (chapterId) => {
 
     const response = await mangaApi.get(`/at-home/server/${chapterId}`);
 
-    if (!response.data || !response.data.chapter)
+    if (!response?.data || !response?.data?.chapter)
       throw new Error('Chapter pages not found');
     return response.data;
   } catch (error) {
@@ -182,7 +180,7 @@ export const getChapterById = async (chapterId) => {
 
     const response = await mangaApi.get(`/chapter/${chapterId}`);
 
-    if (!response.data || !response.data.data)
+    if (!response?.data || !response?.data?.data)
       throw new Error('Chapter not found');
     return response.data;
   } catch (error) {
@@ -196,8 +194,8 @@ export const getMangaGenres = async () => {
   try {
     console.log('[mangadex] Fetching manga genres...');
     const response = await mangaApi.get('/manga/tag');
-    if (!response.data || !response.data.data) {
-      console.error('[mangadex] Invalid genres response:', response.data);
+    if (!response?.data || !response?.data?.data) {
+      console.error('[mangadex] Invalid genres response:', response?.data);
       return { data: [] };
     }
     return { data: response.data.data || [] };

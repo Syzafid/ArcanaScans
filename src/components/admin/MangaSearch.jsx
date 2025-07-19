@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Plus, Loader } from 'lucide-react';
-import { getMangaList, getCoverUrl } from '../../services/mangadexApi';
+import { getMangaList, getCoverUrl } from '../../lib/mangadex';
 
 const MangaSearch = ({ onAdd, buttonText = "Add", placeholder = "Search manga..." }) => {
   const [searchTerm, setSearchTerm] = useState('');

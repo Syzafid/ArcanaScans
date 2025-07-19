@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, Bookmark, BookmarkCheck } from 'lucide-react';
 import { getRecommendations } from '../services/backendApi';
-import { getCoverUrl } from '../services/mangadexApi';
+import { getCoverUrl } from '../lib/mangadex';
 import { useAuth } from '../contexts/AuthContext';
 import useBookmark from '../hooks/useBookmark';
 

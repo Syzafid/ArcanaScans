@@ -1,20 +1,24 @@
-import { getMangaList } from '@/lib/mangadex';
+import axios from 'axios';
 
 export default async function handler(req, res) {
   try {
-    const { limit, offset, title, includedTags, originalLanguages } = req.query;
+    const params = {
+      limit: req.query.limit || 10,
+      offset: req.query.offset || 0,
+      'order[followedCount]': 'desc',
+      'contentRating[]': ['safe', 'suggestive'],
+      'includes[]': ['cover_art', 'author', 'artist'],
+    };
 
-    const data = await getMangaList(
-      parseInt(limit) || 20,
-      parseInt(offset) || 0,
-      title || '',
-      Array.isArray(includedTags) ? includedTags : (includedTags ? [includedTags] : []),
-      Array.isArray(originalLanguages) ? originalLanguages : (originalLanguages ? [originalLanguages] : [])
-    );
+    const response = await axios.get('https://api.mangadex.org/manga', { params });
 
-    return res.status(200).json(data);
+    res.status(200).json(response.data);
   } catch (error) {
-    console.error('API Route Error (manga list):', error);
-    return res.status(500).json({ message: error.message || 'Failed to fetch manga list' });
+    console.error('[API MangaDex] Error:', error.message);
+    res.status(500).json({
+      message: 'Failed to fetch manga',
+      error: error.message,
+      details: error.response?.data || null,
+    });
   }
 }

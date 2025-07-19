@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Book, Calendar, Star, Globe, ChevronDown } from 'lucide-react';
-import { getMangaById, getCoverUrl, getMangaChapters } from '@/services/mangadexApi';
+import { getMangaById, getCoverUrl, getMangaChapters } from '@/lib/mangadex';
 import AnimatedContainer from '@/components/animations/AnimatedContainer';
 import FadeInOnScroll from '@/components/animations/FadeInOnScroll';
 

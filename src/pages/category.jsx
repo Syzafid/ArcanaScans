@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { getMangaGenres, getMangaList } from '../services/mangadexApi';
+import { getMangaGenres, getMangaList } from '../lib/mangadex';
 import MangaCard from '../components/MangaCard';
 import SearchBar from '../components/SearchBar';
 import Pagination from '../components/Pagination';

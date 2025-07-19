@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getMangaList } from '../services/mangadexApi';
+import { getMangaList } from '../lib/mangadex';
 import MangaCard from '../components/MangaCard';
 import SearchBar from '../components/SearchBar';
 import GenreFilter from '../components/GenreFilter';

@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { getMangaGenres } from '../services/mangadexApi';
+import { getMangaGenres } from '../lib/mangadex';
 
 const GenreFilter = ({ onGenreChange, selectedGenres }) => {
   const [genres, setGenres] = useState([]);
