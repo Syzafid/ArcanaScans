@@ -1,4 +1,4 @@
-# MangaDex Client – UAS Project
+# ArcanaScans
 
 ## Deskripsi Proyek
  ArcanaScans adalah web berbasis **Next.js** untuk membaca manga dengan integrasi API **MangaDex**. Web ini mendukung fitur pencarian manga, bookmark, autentikasi pengguna, serta panel admin untuk mengelola rekomendasi dan konten.
@@ -64,8 +64,9 @@
    const API_URL = "https://api.mangadex.org";
    ```
    untuk bypass proxy lokal.
+   tetapi untuk gambar cover mungkin tidak muncul selama di lokal
 
 ---
 
 ## Link Live Demo
-- **[Live Demo di Vercel]arcanascans.vercel.app**  
+- **arcanascans.vercel.app**  
