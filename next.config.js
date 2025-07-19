@@ -1,3 +1,4 @@
+// next.config.js
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -9,8 +10,8 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'uploads.mangadex.org',
-        pathname: '/data/**', // Tambahkan ini untuk gambar komik
+        hostname: '**.mangadex.network',
+        pathname: '/data/**',
       },
     ],
   },
