@@ -1,10 +1,19 @@
-// next.config.js
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-  domains: ['uploads.mangadex.org', 'uploads.mangadex.org/covers', 'mangadex.org', 'mangadex.network'],
-},
-
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'uploads.mangadex.org',
+        pathname: '/covers/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'uploads.mangadex.org',
+        pathname: '/data/**', // Tambahkan ini untuk gambar komik
+      },
+    ],
+  },
 };
 
 module.exports = nextConfig;
