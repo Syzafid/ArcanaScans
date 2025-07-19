@@ -41,7 +41,7 @@ const ChapterReader = () => {
       setError(null);
 
       console.log("Fetching chapter pages for:", chapterId);
-      const pagesResponse = await getChapterPages(chapterId);
+      const pagesResponse = await getChapterById(chapterId);
       console.log("Pages Response:", pagesResponse);
 
       if (!pagesResponse || !pagesResponse.chapter?.data) {
