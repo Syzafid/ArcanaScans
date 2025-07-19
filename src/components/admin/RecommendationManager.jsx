@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Trash2, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import MangaSearch from './MangaSearch';
+import Image from 'next/image';
 
 const RecommendationManager = () => {
   const [recommendations, setRecommendations] = useState([]);
@@ -79,14 +80,17 @@ const RecommendationManager = () => {
                 className="dark-card p-4 rounded-xl bg-dark-bg/50"
               >
                 <div className="flex space-x-4">
-                  <img
-                    src={recommendation.cover}
-                    alt={recommendation.title}
-                    className="w-16 h-20 object-cover rounded"
-                    onError={(e) => {
-                      e.target.src = '/placeholder.svg';
-                    }}
-                  />
+              <Image
+                src={recommendation.cover || '/placeholder.svg'}
+                alt={recommendation.title}
+                width={64}
+                height={80}
+                className="object-cover rounded"
+                onError={(e) => {
+                  e.currentTarget.src = '/placeholder.svg';
+                }}
+                unoptimized // Optional: hilangkan jika kamu yakin domain sudah di-allow di next.config.js
+              />
                   <div className="flex-1 min-w-0">
                     <h4 className="font-medium text-dark-text-primary mb-2 truncate" title={recommendation.title}>
                       {recommendation.title}

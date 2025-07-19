@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Trash2, ArrowUp, ArrowDown, Trophy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import MangaSearch from './MangaSearch';
+import Image from 'next/image';
 
 const RankingManager = () => {
   const [rankings, setRankings] = useState([]);
@@ -133,13 +134,16 @@ const RankingManager = () => {
                 </div>
 
                 {/* Manga Info */}
-                <img
-                  src={item.cover}
+                <Image
+                  src={item.cover || '/placeholder.svg'}
                   alt={item.title}
-                  className="w-12 h-16 object-cover rounded"
+                  width={48}  // atau ukuran sebenarnya sesuai proporsional
+                  height={64}
+                  className="object-cover rounded"
                   onError={(e) => {
                     e.target.src = '/placeholder.svg';
                   }}
+                  unoptimized // Optional: jika kamu mau lewati optimisasi Next.js sementara debugging
                 />
                 
                 <div className="flex-1 min-w-0">

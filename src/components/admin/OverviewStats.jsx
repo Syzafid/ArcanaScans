@@ -10,20 +10,21 @@ const OverviewStats = () => {
     totalAdmins: 0
   });
 
-  // Fungsi ambil jumlah manga dari API MangaDex
+  // Fungsi ambil jumlah manga dari API MangaDex via proxy
   const getTotalMangaFromApi = async () => {
     try {
-      const response = await fetch('https://api.mangadex.org/manga?limit=1');
+      // PAKAI PROXY
+      const response = await fetch('/api/mangadex-proxy/manga?limit=1');
       const data = await response.json();
 
       if (typeof data.total === 'number') {
         return data.total;
       } else {
-        console.warn('⚠️ Respon tidak valid dari API');
+        console.warn('⚠️ Respon tidak valid dari API proxy', data);
         return 0;
       }
     } catch (error) {
-      console.error('❌ Gagal ambil data manga dari API:', error);
+      console.error('❌ Gagal ambil data manga dari API proxy:', error);
       return 0;
     }
   };
