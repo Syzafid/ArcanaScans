@@ -3,35 +3,35 @@ import { useRouter } from 'next/router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Home, BookOpen, Library, Settings, User, LogOut, Menu, X } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
-import { logout } from '../store/slices/authSlice';
+import { logoutUser } from '../store/slices/userSlice';
 import { useState } from 'react';
 
 const Navigation = () => {
   const router = useRouter();
-  const currentPath = router.pathname; // Pengganti location.pathname
+  const currentPath = router.pathname;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { user, isAuthenticated, isAdmin } = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
-  const handleLogout = () => dispatch(logout());
 
+  const dispatch = useDispatch();
+  const { user, isAuthenticated, isAdmin } = useSelector((state) => state.user);
+
+  const handleLogout = () => {
+    dispatch(logoutUser());
+    router.push('/login');
+  };
 
   const navItems = [
     { path: '/', label: 'Home', icon: Home },
     { path: '/category', label: 'Category', icon: BookOpen },
+    { path: '/library', label: 'Library', icon: Library }, // Selalu tampil
   ];
 
-  // Add conditional nav items based on authentication and role
-  if (isAuthenticated) {
-    if (user?.role === 'user') {
-      navItems.push({ path: '/library', label: 'Library', icon: Library });
-    }
-    if (isAdmin) {
-      navItems.push({ path: '/admin', label: 'Admin', icon: Settings });
-    }
+  // Admin menu hanya muncul jika admin login
+  if (isAdmin) {
+    navItems.push({ path: '/admin', label: 'Admin', icon: Settings });
   }
 
   return (
-    <motion.nav 
+    <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
@@ -50,14 +50,14 @@ const Navigation = () => {
               <span className="text-2xl font-bold gradient-text">ArcanaScans</span>
             </Link>
           </motion.div>
-          
+
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             <div className="flex space-x-6">
               {navItems.map((item, index) => {
                 const isActive = currentPath === item.path;
                 const Icon = item.icon;
-                
+
                 return (
                   <motion.div
                     key={item.path}
@@ -102,7 +102,7 @@ const Navigation = () => {
                   >
                     <div className="flex items-center space-x-2 bg-dark-card px-3 py-2 rounded-lg">
                       <User className="w-4 h-4 text-primary" />
-                      <span className="text-sm text-dark-text-primary">{user?.name || 'User'}</span>
+                      <span className="text-sm text-dark-text-primary">{user?.username || 'User'}</span>
                       {isAdmin && (
                         <span className="px-2 py-1 text-xs bg-accent text-dark-bg rounded-full font-medium">
                           Admin
@@ -112,7 +112,7 @@ const Navigation = () => {
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={logout}
+                      onClick={handleLogout}
                       className="flex items-center space-x-1 text-sm text-dark-text-secondary hover:text-destructive transition-colors duration-300"
                     >
                       <LogOut className="w-4 h-4" />
@@ -183,7 +183,7 @@ const Navigation = () => {
                 {navItems.map((item, index) => {
                   const isActive = currentPath === item.path;
                   const Icon = item.icon;
-                  
+
                   return (
                     <motion.div
                       key={item.path}
@@ -206,13 +206,13 @@ const Navigation = () => {
                     </motion.div>
                   );
                 })}
-                
+
                 <div className="border-t border-dark-border pt-4 mt-4">
                   {isAuthenticated ? (
                     <div className="space-y-2">
                       <div className="flex items-center px-4 py-2 bg-dark-card rounded-lg">
                         <User className="w-4 h-4 text-primary mr-2" />
-                        <span className="text-sm">{user?.name}</span>
+                        <span className="text-sm">{user?.username}</span>
                         {isAdmin && (
                           <span className="ml-2 px-2 py-1 text-xs bg-accent text-dark-bg rounded-full">
                             Admin
@@ -220,7 +220,7 @@ const Navigation = () => {
                         )}
                       </div>
                       <button
-                        onClick={logout}
+                        onClick={handleLogout}
                         className="flex items-center w-full px-4 py-3 text-destructive hover:bg-destructive/10 rounded-lg transition-colors duration-300"
                       >
                         <LogOut className="w-5 h-5 mr-3" />

@@ -6,7 +6,7 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight, Bookmark, BookmarkCheck } from "lucide-react";
 import { getRecommendations } from "../services/backendApi";
 import { getCoverUrl } from "../lib/mangadex";
-import { useAuth } from "../contexts/AuthContext";
+import { useSelector } from "react-redux"; // ⬅️ Ganti useAuth
 import useBookmark from "../hooks/useBookmark";
 
 const RecommendationCarousel = () => {
@@ -16,7 +16,7 @@ const RecommendationCarousel = () => {
   const [dataSource, setDataSource] = useState("loading");
   const [imageError, setImageError] = useState(false);
 
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useSelector((state) => state.user); // ⬅️ Ambil dari Redux
   const { isBookmarked, toggleBookmark } = useBookmark();
 
   useEffect(() => {
@@ -86,13 +86,13 @@ const RecommendationCarousel = () => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (!user) {
+    if (!isAuthenticated) {
       alert("Silakan login untuk menyimpan ke library.");
       return;
     }
 
-    if (user.role !== "user") {
-      alert("Fitur bookmark hanya tersedia untuk user.");
+    if (user?.isAdmin) {
+      alert("Fitur bookmark hanya tersedia untuk user biasa.");
       return;
     }
 
@@ -152,7 +152,7 @@ const RecommendationCarousel = () => {
       )}
 
       {/* Bookmark Button */}
-      {user && user.role === "user" && (
+      {isAuthenticated && !user?.isAdmin && (
         <button
           onClick={(e) => handleBookmark(currentItem, e)}
           className="absolute top-4 right-4 z-20 p-2 rounded-full bg-black/30 hover:bg-black/50 transition-colors backdrop-blur-sm"

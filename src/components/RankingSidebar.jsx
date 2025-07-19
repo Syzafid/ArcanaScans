@@ -5,14 +5,14 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Trophy, Bookmark, BookmarkCheck, BookOpen, Info } from "lucide-react";
 import { getCoverUrl } from "../lib/mangadex";
-import { useAuth } from "../contexts/AuthContext";
+import { useSelector } from "react-redux"; // ⬅️ Ganti useAuth
 import useBookmark from "../hooks/useBookmark";
 import Image from "next/image";
 
 const RankingSidebar = () => {
   const [rankings, setRankings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useSelector((state) => state.user); // ⬅️ Ambil dari Redux
   const { isBookmarked, toggleBookmark } = useBookmark();
 
   useEffect(() => {
@@ -26,46 +26,11 @@ const RankingSidebar = () => {
         savedRankings.length > 0
           ? savedRankings
           : [
-              {
-                id: "rank-1",
-                title: "One Piece",
-                rank: 1,
-                cover: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400",
-                score: 9.8,
-                mangaId: "rank-1",
-              },
-              {
-                id: "rank-2",
-                title: "Attack on Titan",
-                rank: 2,
-                cover: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400",
-                score: 9.5,
-                mangaId: "rank-2",
-              },
-              {
-                id: "rank-3",
-                title: "Demon Slayer",
-                rank: 3,
-                cover: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400",
-                score: 9.3,
-                mangaId: "rank-3",
-              },
-              {
-                id: "rank-4",
-                title: "My Hero Academia",
-                rank: 4,
-                cover: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400",
-                score: 9.1,
-                mangaId: "rank-4",
-              },
-              {
-                id: "rank-5",
-                title: "Jujutsu Kaisen",
-                rank: 5,
-                cover: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400",
-                score: 9.0,
-                mangaId: "rank-5",
-              },
+              { id: "rank-1", title: "One Piece", rank: 1, cover: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400", score: 9.8, mangaId: "rank-1" },
+              { id: "rank-2", title: "Attack on Titan", rank: 2, cover: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400", score: 9.5, mangaId: "rank-2" },
+              { id: "rank-3", title: "Demon Slayer", rank: 3, cover: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400", score: 9.3, mangaId: "rank-3" },
+              { id: "rank-4", title: "My Hero Academia", rank: 4, cover: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400", score: 9.1, mangaId: "rank-4" },
+              { id: "rank-5", title: "Jujutsu Kaisen", rank: 5, cover: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400", score: 9.0, mangaId: "rank-5" },
             ];
       setRankings(dataToSet.sort((a, b) => a.rank - b.rank));
     } catch (error) {
@@ -79,13 +44,13 @@ const RankingSidebar = () => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (!user) {
+    if (!isAuthenticated) {
       alert("Silakan login untuk menyimpan ke library.");
       return;
     }
 
-    if (user.role !== "user") {
-      alert("Fitur bookmark hanya tersedia untuk user.");
+    if (user?.isAdmin) {
+      alert("Fitur bookmark hanya tersedia untuk user biasa.");
       return;
     }
 
@@ -150,7 +115,7 @@ const RankingSidebar = () => {
             >
               <div className="flex items-center space-x-3 hover:bg-gray-800/50 p-3 rounded-lg transition-colors hover-lift">
                 {/* Bookmark Button */}
-                {user && user.role === "user" && (
+                {isAuthenticated && !user?.isAdmin && (
                   <button
                     onClick={(e) => handleBookmark(item, e)}
                     className="absolute top-2 right-2 z-10 p-1 rounded-full bg-black/50 hover:bg-black/70 transition-colors opacity-0 group-hover:opacity-100"
@@ -168,23 +133,21 @@ const RankingSidebar = () => {
                 </div>
 
                 <Link href={`/manga/${item.mangaId || item.id}`} className="flex items-center space-x-3 flex-1">
-                <Image
-                  src={
-                    item.cover ||
-                    (item.mangaId && item.coverFileName
-                      ? getCoverUrl(item.mangaId, item.coverFileName, "256")
-                      : "/placeholder.svg")
-                  }
-                  alt={item.title}
-                  width={48}
-                  height={64}
-                  className="object-cover rounded border border-dark-border"
-                  onError={(e) => {
-                    e.currentTarget.src = "/placeholder.svg";
-                  }}
-                  // unoptimized // Jika belum yakin domain sudah terdaftar di next.config.js
-                />
-
+                  <Image
+                    src={
+                      item.cover ||
+                      (item.mangaId && item.coverFileName
+                        ? getCoverUrl(item.mangaId, item.coverFileName, "256")
+                        : "/placeholder.svg")
+                    }
+                    alt={item.title}
+                    width={48}
+                    height={64}
+                    className="object-cover rounded border border-dark-border"
+                    onError={(e) => {
+                      e.currentTarget.src = "/placeholder.svg";
+                    }}
+                  />
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-medium text-dark-text-primary truncate group-hover:text-primary transition-colors">
                       {item.title}

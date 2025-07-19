@@ -5,10 +5,10 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { motion } from "framer-motion";
 import { Mail, Lock, User, Eye, EyeOff } from "lucide-react";
-import { useDispatch } from 'react-redux';
-import { signup } from '../store/slices/authSlice';
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
+import { useDispatch } from "react-redux";
+import { loginUser, setUserError } from "../store/slices/userSlice";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -17,41 +17,44 @@ const Signup = () => {
     password: "",
     confirmPassword: "",
   });
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const dispatch = useDispatch();
-  const { error, loading } = useSelector((state) => state.user);
   const router = useRouter();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setError("");
+    dispatch(setUserError(null));
 
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+    if (!formData.name || !formData.email || !formData.password) {
+      alert("Please fill all fields");
       return;
     }
 
     if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters");
+      alert("Password must be at least 6 characters");
       return;
     }
 
-    setLoading(true);
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
 
-    const newUser = {
-      id: Date.now(),
-      email: formData.email,
-      role: 'user',
-      name: formData.name
-    };
+    // Simulasi registrasi dan auto login
+    dispatch(
+      loginUser({
+        id: Date.now(),
+        username: formData.name,
+        email: formData.email,
+        isAdmin: false,
+      })
+    );
 
-    dispatch(signup(newUser));
-    router.push('/library');
-    setLoading(false);
+    router.push("/library");
   };
-
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -70,18 +73,10 @@ const Signup = () => {
             <h1 className="text-3xl font-bold gradient-text mb-2">
               Create Account
             </h1>
-            <p className="text-dark-text-secondary">Sign up for a new account</p>
+            <p className="text-dark-text-secondary">
+              Sign up for a new account
+            </p>
           </div>
-
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 mb-6"
-            >
-              <p className="text-destructive text-sm">{error}</p>
-            </motion.div>
-          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Full Name */}
@@ -175,28 +170,19 @@ const Signup = () => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
-              disabled={loading}
-              className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full btn-primary"
             >
-              {loading ? "Creating Account..." : "Create Account"}
+              Sign Up
             </motion.button>
           </form>
 
-          {/* Link to Login */}
+          {/* Login Link */}
           <div className="mt-6 text-center">
             <p className="text-dark-text-secondary">
               Already have an account?{" "}
               <Link href="/login" className="text-primary hover:underline">
                 Sign in
               </Link>
-            </p>
-          </div>
-
-          {/* Info Box */}
-          <div className="mt-8 p-4 bg-accent/10 rounded-lg">
-            <p className="text-xs text-dark-text-secondary">
-              Note: Only regular user accounts can be created through signup.
-              Admin accounts must be created by existing admins.
             </p>
           </div>
         </div>

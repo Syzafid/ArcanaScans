@@ -5,10 +5,10 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { motion } from "framer-motion";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
-import { useDispatch, useSelector } from 'react-redux';
-import { login, setAuthError } from '../store/slices/authSlice';
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser, setUserError } from "../store/slices/userSlice";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -17,27 +17,30 @@ const Login = () => {
   const dispatch = useDispatch();
   const router = useRouter();
 
-  const { error, loading } = useSelector((state) => state.auth);
+  const { error } = useSelector((state) => state.user); // Ambil error dari Redux
 
   const handleSubmit = (e) => {
-  e.preventDefault();
-  setError("");
-  setLoading(true);
+    e.preventDefault();
+    dispatch(setUserError(null));
 
-  // Simulasi login
-  if (formData.email === 'admin@example.com' && formData.password === '123456') {
-    dispatch(login({ id: 1, email: formData.email, role: 'admin', name: 'Admin User' }));
-    router.push('/admin');
-  } else if (formData.email === 'user@example.com' && formData.password === '123456') {
-    dispatch(login({ id: 2, email: formData.email, role: 'user', name: 'Regular User' }));
-    router.push('/library');
-  } else {
-    dispatch(setAuthError('Invalid email or password'));
-    setError('Invalid email or password');
-  }
+    if (formData.email && formData.password) {
+      // Simulasi login sukses
+      const isAdmin = formData.email.toLowerCase() === "admin@example.com";
 
-  setLoading(false);
-};
+      dispatch(
+        loginUser({
+          id: Date.now(),
+          username: formData.email.split("@")[0],
+          email: formData.email,
+          isAdmin,
+        })
+      );
+
+      router.push(isAdmin ? "/admin" : "/library"); // Admin diarahkan ke admin dashboard
+    } else {
+      dispatch(setUserError("Invalid email or password"));
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -59,6 +62,7 @@ const Login = () => {
             <p className="text-dark-text-secondary">Sign in to your account</p>
           </div>
 
+          {/* Error Message */}
           {error && (
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -108,7 +112,11 @@ const Login = () => {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-3 text-dark-text-muted hover:text-dark-text-primary"
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </button>
               </div>
             </div>
@@ -118,10 +126,9 @@ const Login = () => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
-              disabled={loading}
-              className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full btn-primary"
             >
-              {loading ? "Signing in..." : "Sign In"}
+              Sign In
             </motion.button>
           </form>
 
@@ -133,17 +140,6 @@ const Login = () => {
                 Sign up
               </Link>
             </p>
-          </div>
-
-          {/* Demo Accounts */}
-          <div className="mt-8 p-4 bg-dark-bg/50 rounded-lg">
-            <h3 className="text-sm font-medium text-dark-text-primary mb-2">
-              Demo Accounts:
-            </h3>
-            <div className="text-xs text-dark-text-secondary space-y-1">
-              <p>Admin: admin@example.com / 123456</p>
-              <p>User: user@example.com / 123456</p>
-            </div>
           </div>
         </div>
       </motion.div>

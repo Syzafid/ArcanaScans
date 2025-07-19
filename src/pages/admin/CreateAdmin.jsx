@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, Eye, EyeOff, ArrowLeft, Shield } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import Link from 'next/link';
+import { useSelector } from 'react-redux'; // ⬅️ Ambil state dari Redux
+import { createAdminAccount } from '../../services/adminApi'; // ⬅️ Asumsikan ada API untuk create admin
 
 const CreateAdmin = () => {
   const [formData, setFormData] = useState({
@@ -20,8 +21,15 @@ const CreateAdmin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const { createAdmin, user } = useAuth();
+  const { user, isAuthenticated } = useSelector((state) => state.user); // ⬅️ Ganti useAuth
   const router = useRouter();
+
+  useEffect(() => {
+    // Proteksi agar hanya admin yang bisa akses halaman ini
+    if (!isAuthenticated || !user?.isAdmin) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, user, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,16 +48,19 @@ const CreateAdmin = () => {
 
     setLoading(true);
 
-    const result = createAdmin(formData.email, formData.password, formData.name);
-    
-    if (result.success) {
-      setSuccess('Admin account created successfully!');
-      setFormData({ name: '', email: '', password: '', confirmPassword: '' });
-    } else {
-      setError(result.error);
+    try {
+      const result = await createAdminAccount(formData.email, formData.password, formData.name);
+      if (result.success) {
+        setSuccess('Admin account created successfully!');
+        setFormData({ name: '', email: '', password: '', confirmPassword: '' });
+      } else {
+        setError(result.error || 'Failed to create admin account.');
+      }
+    } catch (err) {
+      setError(err.message || 'Something went wrong.');
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   const handleChange = (e) => {
@@ -58,12 +69,6 @@ const CreateAdmin = () => {
       [e.target.name]: e.target.value
     });
   };
-
-  // Proteksi agar hanya admin yang bisa akses halaman ini
-  if (user && user.role !== 'admin') {
-    router.push('/login');
-    return null;
-  }
 
   return (
     <div className="min-h-screen bg-dark-bg">
@@ -118,6 +123,7 @@ const CreateAdmin = () => {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Full Name */}
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
                 <div className="relative">
@@ -135,6 +141,7 @@ const CreateAdmin = () => {
                 </div>
               </div>
 
+              {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
@@ -152,6 +159,7 @@ const CreateAdmin = () => {
                 </div>
               </div>
 
+              {/* Password */}
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
@@ -176,6 +184,7 @@ const CreateAdmin = () => {
                 </div>
               </div>
 
+              {/* Confirm Password */}
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Confirm Password</Label>
                 <div className="relative">
@@ -200,6 +209,7 @@ const CreateAdmin = () => {
                 </div>
               </div>
 
+              {/* Submit Button */}
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}

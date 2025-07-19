@@ -1,13 +1,25 @@
-
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { useSelector } from 'react-redux'; // ⬅️ Ambil user dari Redux
 import { motion } from 'framer-motion';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import OverviewStats from '@/components/admin/OverviewStats';
 
 const AdminDashboard = () => {
+  const router = useRouter();
+  const { user, isAuthenticated } = useSelector((state) => state.user); // ⬅️ Redux state
+
+  useEffect(() => {
+    // Proteksi halaman: hanya admin bisa masuk
+    if (!isAuthenticated || !user?.isAdmin) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, user, router]);
+
   return (
     <div className="min-h-screen bg-dark-bg flex">
       <AdminSidebar />
-      
+
       <div className="flex-1 p-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -33,7 +45,7 @@ const AdminDashboard = () => {
                 Monitor recent user activities and system changes.
               </p>
             </div>
-            
+
             <div className="dark-card p-6 rounded-xl">
               <h3 className="text-lg font-semibold text-dark-text-primary mb-3">System Health</h3>
               <div className="flex items-center space-x-2">
@@ -41,7 +53,7 @@ const AdminDashboard = () => {
                 <span className="text-green-400 text-sm">All systems operational</span>
               </div>
             </div>
-            
+
             <div className="dark-card p-6 rounded-xl">
               <h3 className="text-lg font-semibold text-dark-text-primary mb-3">Quick Actions</h3>
               <div className="space-y-2">

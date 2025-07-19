@@ -4,13 +4,14 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Bookmark, BookmarkCheck } from "lucide-react";
 import { getCoverUrl } from "../lib/mangadex";
-import { useAuth } from "../contexts/AuthContext";
+import { useSelector } from "react-redux"; // ⬅️ Ganti useAuth
 import useBookmark from "../hooks/useBookmark";
 import Image from "next/image";
 import { useState } from "react";
 
 const MangaCard = ({ manga }) => {
-  const { user } = useAuth();
+  // Ambil state user dari Redux
+  const { user, isAuthenticated } = useSelector((state) => state.user);
   const { isBookmarked, toggleBookmark } = useBookmark();
 
   const coverArt = manga.relationships?.find((rel) => rel.type === "cover_art");
@@ -56,13 +57,13 @@ const MangaCard = ({ manga }) => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (!user) {
+    if (!isAuthenticated) {
       alert("Silakan login untuk menyimpan ke library.");
       return;
     }
 
-    if (user.role !== "user") {
-      alert("Fitur bookmark hanya tersedia untuk user.");
+    if (user?.isAdmin) {
+      alert("Fitur bookmark hanya tersedia untuk user biasa.");
       return;
     }
 
@@ -101,7 +102,7 @@ const MangaCard = ({ manga }) => {
             {categoryLabel.label}
           </motion.div>
 
-          {user && user.role === "user" && (
+          {isAuthenticated && !user?.isAdmin && (
             <motion.button
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
