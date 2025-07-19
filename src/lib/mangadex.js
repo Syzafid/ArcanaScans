@@ -155,22 +155,25 @@ export const getMangaChapters = async (
   }
 };
 
-// 4. Ambil halaman (image pages) dari chapter
 export const getChapterPages = async (chapterId) => {
   try {
     if (!chapterId) throw new Error('Chapter ID is required');
     console.log('[mangadex] Fetching chapter pages:', chapterId);
 
     const response = await mangaApi.get(`/at-home/server/${chapterId}`);
+    console.log('[mangadex] Chapter pages response:', response.data);
 
-    if (!response?.data || !response?.data?.chapter)
-      throw new Error('Chapter pages not found');
+    if (!response?.data || response.data.result !== 'ok' || !response.data.chapter) {
+      throw new Error('Chapter pages not found or invalid response');
+    }
+
     return response.data;
   } catch (error) {
     console.error('[mangadex] Error fetching chapter pages:', error);
     throw new Error(error.message || 'Failed to fetch chapter pages');
   }
 };
+
 
 // 5. Ambil detail chapter berdasarkan ID
 export const getChapterById = async (chapterId) => {
