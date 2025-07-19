@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Rocket, Book, Globe } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 import {
@@ -333,18 +334,22 @@ const ChapterReader = () => {
                   <div className="loading-spinner"></div>
                 </div>
               )}
-              <img
-                src={pageUrl}
-                alt={`Page ${index + 1}`}
-                className={`w-full h-auto rounded-lg shadow-lg transition-opacity duration-300 ${
-                  loadedImages.has(index) ? 'opacity-100' : 'opacity-0'
-                }`}
-                onLoad={() => handleImageLoad(index)}
-                onError={(e) => {
-                  e.target.src = '/placeholder.svg';
-                  handleImageLoad(index);
-                }}
-              />
+            <Image
+              src={pageUrl}
+              alt={`Page ${index + 1}`}
+              width={960} // kamu bisa sesuaikan ukuran sesuai kebutuhan
+              height={1440}
+              className={`w-full h-auto rounded-lg shadow-lg transition-opacity duration-300 ${
+                loadedImages.has(index) ? 'opacity-100' : 'opacity-0'
+              }`}
+              onLoad={() => handleImageLoad(index)}
+              onError={(e) => {
+                e.target.src = '/placeholder.svg';
+                handleImageLoad(index);
+              }}
+              unoptimized // Hapus ini jika kamu mau gambar dioptimasi (lihat catatan di bawah)
+            />
+
               <div className="absolute top-4 left-4 bg-black/70 text-white px-2 py-1 rounded text-sm">
                 {index + 1} / {pages.length}
               </div>
